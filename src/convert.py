@@ -7,6 +7,7 @@ import numpy as np
 import pycocotools.mask as mask_util
 import supervisely as sly
 from dataset_tools.convert import unpack_if_archive
+from PIL import Image
 from supervisely.io.fs import (
     file_exists,
     get_file_ext,
@@ -15,6 +16,8 @@ from supervisely.io.fs import (
 )
 from supervisely.io.json import load_json_file
 from tqdm import tqdm
+
+Image.MAX_IMAGE_PIXELS = None
 
 import src.settings as s
 
@@ -114,9 +117,9 @@ def convert_and_upload_supervisely_project(
         subfolder_value = image_path.split("/")[-2]
         subfolder = sly.Tag(subfolder_meta, value=subfolder_value)
 
-        image_np = sly.imaging.image.read(image_path)[:, :, 0]
-        img_height = image_np.shape[0]
-        img_wight = image_np.shape[1]
+        image = Image.open(image_path)
+        img_height = image.height
+        img_wight = image.width
 
         ann_data = image_name_to_ann_data[get_file_name_with_ext(image_path)]
         for curr_ann_data in ann_data:
